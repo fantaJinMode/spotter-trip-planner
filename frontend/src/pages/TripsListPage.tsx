@@ -31,7 +31,7 @@ function TripRow({ trip }: { trip: TripListItem }) {
         <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
           {trip.current_location} → {trip.pickup_location} → {trip.dropoff_location}
         </Typography>
-        <Typography sx={{ fontSize: 12.5, color: "text.secondary" }}>
+        <Typography sx={{ fontSize: 12.5, color: "text.secondary", textAlign: "left" }}>
           {formatDate(trip.created_at)} · Cycle used {trip.current_cycle_used}h
         </Typography>
       </Box>
