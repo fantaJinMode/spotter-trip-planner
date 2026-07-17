@@ -1,8 +1,18 @@
 import math
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from . import geocoding, routing
 from .hos import Leg, plan_trip
+
+QUARTER_HOUR = timedelta(minutes=15)
+
+
+def _round_to_quarter_hour(dt):
+    overflow = timedelta(minutes=dt.minute % 15, seconds=dt.second, microseconds=dt.microsecond)
+    dt -= overflow
+    if overflow >= QUARTER_HOUR / 2:
+        dt += QUARTER_HOUR
+    return dt
 
 
 def build_plan(data):
@@ -17,7 +27,7 @@ def build_plan(data):
         Leg(route_a["distance_mi"], route_a["duration_hrs"], service_after=True),
         Leg(route_b["distance_mi"], route_b["duration_hrs"], service_after=True),
     ]
-    logs = plan_trip(legs, cycle_used=data["current_cycle_used"], start=datetime.now())
+    logs = plan_trip(legs, cycle_used=data["current_cycle_used"], start=_round_to_quarter_hour(datetime.now()))
 
     return {
         "route": {

@@ -13,9 +13,9 @@ const MAX_CYCLE = 70;
 
 export function TripForm({ onSubmit, loading, fieldErrors }: TripFormProps) {
   const [currentLocation, setCurrentLocation] = useState("Chicago, IL");
-  const [pickupLocation, setPickupLocation] = useState("Joliet, IL");
-  const [dropoffLocation, setDropoffLocation] = useState("Dallas, TX");
-  const [cycleUsed, setCycleUsed] = useState("6");
+  const [pickupLocation, setPickupLocation] = useState("Milwaukee, IL");
+  const [dropoffLocation, setDropoffLocation] = useState("Indianapolis, IN");
+  const [cycleUsed, setCycleUsed] = useState("12");
 
   const cycleNum = Number(cycleUsed);
   const cycleValid = cycleUsed !== "" && !Number.isNaN(cycleNum) && cycleNum >= MIN_CYCLE && cycleNum <= MAX_CYCLE;
