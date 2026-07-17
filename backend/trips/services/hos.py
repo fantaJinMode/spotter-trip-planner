@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 MAX_DRIVE, WINDOW, BREAK_AFTER, BREAK_HRS = 11.0, 14.0, 8.0, 0.5
 DAILY_REST, CYCLE_MAX, RESTART = 10.0, 70.0, 34.0
 FUEL_EVERY_MI, FUEL_HRS, SERVICE_HRS = 1000.0, 0.5, 1.0
+PRETRIP_HRS = 0.5
 
 
 @dataclass
@@ -33,6 +34,8 @@ def plan_trip(legs, cycle_used, start):
         nonlocal on_window, cycle
         add("on_duty", hrs, note)
         on_window += hrs; cycle += hrs
+
+    on_duty(PRETRIP_HRS, "pre-trip inspection")
 
     for leg in legs:
         speed = leg.distance_mi / leg.duration_hrs if leg.duration_hrs > 1e-9 else 0.0

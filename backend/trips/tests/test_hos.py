@@ -8,6 +8,14 @@ def _statuses(day):
     return [(e["status"], e["start"], e["end"]) for e in day["events"]]
 
 
+def test_pretrip_inspection_before_driving():
+    logs = plan_trip([Leg(40, 0.75, service_after=True), Leg(240, 4.0, service_after=True)],
+                     cycle_used=0, start=START)
+    day = logs[0]
+    assert ("on_duty", "08:00", "08:30") in _statuses(day)  # 30 min pre-trip inspection
+    assert day["totals"]["on_duty"] >= 0.5
+
+
 def test_short_trip_single_day():
     # 40mi/0.75h to pickup, 240mi/4h to dropoff
     logs = plan_trip([Leg(40, 0.75, service_after=True), Leg(240, 4.0, service_after=True)],
@@ -15,15 +23,15 @@ def test_short_trip_single_day():
     assert len(logs) == 1
     day = logs[0]
     assert day["date"] == "2026-07-14"
-    assert ("driving", "08:00", "08:45") in _statuses(day)
-    assert ("on_duty", "08:45", "09:45") in _statuses(day)   # 1hr pickup
+    assert ("driving", "08:30", "09:15") in _statuses(day)
+    assert ("on_duty", "09:15", "10:15") in _statuses(day)   # 1hr pickup
     assert day["totals"]["driving"] == 4.75
 
 
 def test_break_inserted_after_8h_driving():
     logs = plan_trip([Leg(600, 10.0, service_after=False)], cycle_used=0, start=START)
     day = logs[0]
-    assert ("off_duty", "16:00", "16:30") in _statuses(day)  # break after 8h from 08:00
+    assert ("off_duty", "16:30", "17:00") in _statuses(day)  # break after 8h driving from 08:30
 
 
 def test_11h_driving_cap_forces_10h_rest_and_second_day():
@@ -47,8 +55,9 @@ def test_cycle_exhaustion_inserts_34h_restart():
 def test_pickup_and_dropoff_are_on_duty_hours():
     logs = plan_trip([Leg(60, 1.0, service_after=True), Leg(60, 1.0, service_after=True)],
                      cycle_used=0, start=START)
-    on = [e for d in logs for e in d["events"] if e["status"] == "on_duty"]
-    assert len(on) == 2 and all(e["note"] == "pickup/dropoff" for e in on)
+    on = [e for d in logs for e in d["events"]
+          if e["status"] == "on_duty" and e["note"] == "pickup/dropoff"]
+    assert len(on) == 2
 
 
 def test_events_split_cleanly_at_midnight():
@@ -68,5 +77,5 @@ def test_zero_duration_leg_does_not_raise():
     logs = plan_trip([Leg(0, 0.0, service_after=True), Leg(240, 4.0, service_after=True)],
                      cycle_used=0, start=START)
     day = logs[0]
-    assert ("on_duty", "08:00", "09:00") in _statuses(day)  # pickup happens immediately
+    assert ("on_duty", "08:30", "09:30") in _statuses(day)  # pickup happens right after pre-trip inspection
     assert day["totals"]["driving"] == 4.0
