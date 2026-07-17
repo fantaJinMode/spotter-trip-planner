@@ -45,6 +45,9 @@ export function LogSheet({ log }: LogSheetProps) {
       <Typography variant="h6" gutterBottom>
         Driver Log for {log.date}
       </Typography>
+      <Typography variant="body2" gutterBottom>
+        Total Driving Hours: <strong>{log.totals.driving.toFixed(2)}hrs</strong>
+      </Typography>
       <svg
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         role="img"
