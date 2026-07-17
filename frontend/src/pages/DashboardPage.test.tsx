@@ -4,10 +4,14 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { vi, it, expect } from "vitest";
 import { fixtureTrip } from "../api/fixture";
 
-vi.mock("../api/client", () => ({
-  getTrip: vi.fn().mockResolvedValue(fixtureTrip),
-  createTrip: vi.fn(),
-}));
+vi.mock("../api/client", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../api/client")>();
+  return {
+    ...actual,
+    getTrip: vi.fn().mockResolvedValue(fixtureTrip),
+    createTrip: vi.fn(),
+  };
+});
 
 import { DashboardPage } from "./DashboardPage";
 
@@ -48,4 +52,20 @@ it("shows a loaded trip's details as read-only with total miles and no Plan trip
   expect(
     screen.getByText(new RegExp(`total miles: ${fixtureTrip.route.distance_mi}`, "i")),
   ).toBeInTheDocument();
+});
+
+import { getTrip } from "../api/client";
+
+it("shows a trip-not-found state when the loaded trip 404s", async () => {
+  vi.mocked(getTrip).mockRejectedValueOnce(
+    Object.assign(new Error("Not found"), {
+      isAxiosError: true,
+      response: { status: 404, data: { detail: "Not found." } },
+    }),
+  );
+
+  renderAt("/trips/does-not-exist");
+
+  expect(await screen.findByText("Trip not found")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /back to trips/i })).toHaveAttribute("href", "/trips");
 });

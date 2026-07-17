@@ -6,5 +6,6 @@ export function useTrip(id?: string) {
     queryKey: ["trip", id],
     queryFn: () => getTrip(id as string),
     enabled: Boolean(id),
+    retry: false,
   });
 }
