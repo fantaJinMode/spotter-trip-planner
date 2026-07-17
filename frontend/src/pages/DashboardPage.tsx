@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Alert, Box, Grid, Skeleton, Stack } from "@mui/material";
 import { AppShell } from "../layout/AppShell";
@@ -54,6 +54,10 @@ export function DashboardPage() {
   const { mutate, data: createdTrip, error: createError, isPending: isCreating } = useCreateTrip();
   const [lastError, setLastError] = useState<unknown>(null);
   const { data: loadedTrip, error: loadError, isPending: isLoading } = useTrip(id);
+
+  useEffect(() => {
+    setLastError(null);
+  }, [id]);
 
   const data = createdTrip ?? loadedTrip;
   const loading = isCreating || (Boolean(id) && isLoading);

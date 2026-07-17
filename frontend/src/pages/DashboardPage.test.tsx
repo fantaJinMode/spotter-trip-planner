@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
-import { vi, it, expect } from "vitest";
+import { afterEach, vi, it, expect } from "vitest";
 import { fixtureTrip } from "../api/fixture";
 
 vi.mock("../api/client", async (importOriginal) => {
@@ -14,6 +14,12 @@ vi.mock("../api/client", async (importOriginal) => {
 });
 
 import { DashboardPage } from "./DashboardPage";
+import { getTrip } from "../api/client";
+
+afterEach(() => {
+  vi.mocked(getTrip).mockReset();
+  vi.mocked(getTrip).mockResolvedValue(fixtureTrip);
+});
 
 function renderAt(path: string) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -53,8 +59,6 @@ it("shows a loaded trip's details as read-only with total miles and no Plan trip
     screen.getByText(new RegExp(`total miles: ${fixtureTrip.route.distance_mi}`, "i")),
   ).toBeInTheDocument();
 });
-
-import { getTrip } from "../api/client";
 
 it("shows a trip-not-found state when the loaded trip 404s", async () => {
   vi.mocked(getTrip).mockRejectedValueOnce(

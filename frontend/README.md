@@ -1,32 +1,52 @@
-# React + TypeScript + Vite
+# Frontend — Spotter Trip Planner
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+React + TypeScript app for planning HOS-compliant truck trips: a trip input form, a
+route map, and FMCSA-style ELD daily log sheets. See the
+[root README](../README.md) for the overall project.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+React 19, TypeScript, Vite, MUI, React Query, Axios, Leaflet/react-leaflet (map),
+Vitest + Testing Library (tests).
 
-## React Compiler
+## Setup
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+cd frontend
+npm install
+cp .env.development .env.development.local   # optional, to override defaults
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Runs at `http://localhost:5173` and expects the [backend](../backend/) API at
+`VITE_API_BASE_URL` (default `http://localhost:8000`).
+
+## Environment variables
+
+- `VITE_API_BASE_URL` — backend API base URL.
+- `VITE_USE_MOCK` — set to `1` to use fixture data instead of a live backend
+  (`src/api/fixture.ts`), useful for UI work without the backend running.
+
+## Scripts
+
+```bash
+npm run dev       # start dev server
+npm run build     # type-check and build for production
+npm run lint      # oxlint
+npm test          # vitest
+npm run preview   # preview production build
+```
+
+## Structure
+
+- `src/pages/` — routed pages (Dashboard, Trips list, Not Found).
+- `src/components/` — `TripForm`, `RouteMap`, `LogSheet`, and shared UI.
+- `src/hooks/` — React Query hooks for trip creation/fetching (`useCreateTrip`,
+  `useTrip`, `useTripsList`).
+- `src/api/` — Axios client, types, and mock fixtures.
+- `src/layout/` — app shell, sidebar, topbar, bottom nav.
+
+## Deployment
+
+Deployed to Vercel as a static build (`vercel.json` rewrites all routes to
+`index.html` for client-side routing).

@@ -1,6 +1,6 @@
-/docs
-/frontend-dashboard-design
-/requirements
+docs/
+frontend-dashboard-design/
+requirements/
 
 # Django and Vercel deployment helpers
 backend/.env

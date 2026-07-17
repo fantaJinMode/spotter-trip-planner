@@ -23,9 +23,7 @@ env = environ.Env(
 
 # Load local environment variables from backend/.env if present.
 # On Vercel, environment variables should be set in the project settings.
-env_file = BASE_DIR / '.env'
-if env_file.exists():
-    env.read_env(env_file)
+env.read_env(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,16 +35,11 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)
 
-# When ALLOWED_HOSTS is not set in the environment, allow all hosts.
-# This avoids Django rejecting requests on platforms like Vercel with an unknown host header.
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
-if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
-    ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=[])
 
-# Vercel sets VERCEL_URL automatically for deployments. If ALLOWED_HOSTS is explicitly configured,
-# make sure the current Vercel hostname is allowed as well.
+# Vercel sets VERCEL_URL automatically for deployments; trust that hostname too.
 vercel_url = env('VERCEL_URL', default='')
-if vercel_url and ALLOWED_HOSTS != ['*'] and vercel_url not in ALLOWED_HOSTS:
+if vercel_url and vercel_url not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(vercel_url)
 
 
