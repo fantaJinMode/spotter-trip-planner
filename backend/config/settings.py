@@ -40,8 +40,14 @@ DEBUG = env.bool('DEBUG', default=False)
 # When ALLOWED_HOSTS is not set in the environment, allow all hosts.
 # This avoids Django rejecting requests on platforms like Vercel with an unknown host header.
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['*'])
-if ALLOWED_HOSTS == ['']:
+if not ALLOWED_HOSTS or ALLOWED_HOSTS == ['']:
     ALLOWED_HOSTS = ['*']
+
+# Vercel sets VERCEL_URL automatically for deployments. If ALLOWED_HOSTS is explicitly configured,
+# make sure the current Vercel hostname is allowed as well.
+vercel_url = env('VERCEL_URL', default='')
+if vercel_url and ALLOWED_HOSTS != ['*'] and vercel_url not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(vercel_url)
 
 
 # Application definition
