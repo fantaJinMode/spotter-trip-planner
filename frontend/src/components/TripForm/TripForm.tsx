@@ -1,33 +1,44 @@
 import { useState } from "react";
-import { Button, CircularProgress, Paper, Stack, TextField } from "@mui/material";
+import { Button, CircularProgress, Paper, Stack, TextField, Typography } from "@mui/material";
 import type { TripInput } from "../../api/types";
 
 export interface TripFormProps {
   onSubmit(input: TripInput): void;
   loading: boolean;
   fieldErrors?: Partial<Record<keyof TripInput, string>>;
+  initialValues?: TripInput;
+  readOnly?: boolean;
+  totalMiles?: number;
 }
 
 const MIN_CYCLE = 0;
 const MAX_CYCLE = 70;
 
-export function TripForm({ onSubmit, loading, fieldErrors }: TripFormProps) {
-  const [currentLocation, setCurrentLocation] = useState("Chicago, IL");
-  const [pickupLocation, setPickupLocation] = useState("Milwaukee, IL");
-  const [dropoffLocation, setDropoffLocation] = useState("Indianapolis, IN");
-  const [cycleUsed, setCycleUsed] = useState("12");
+export function TripForm({ onSubmit, loading, fieldErrors, initialValues, readOnly, totalMiles }: TripFormProps) {
+  const [currentLocation, setCurrentLocation] = useState(initialValues?.current_location ?? "");
+  const [pickupLocation, setPickupLocation] = useState(initialValues?.pickup_location ?? "");
+  const [dropoffLocation, setDropoffLocation] = useState(initialValues?.dropoff_location ?? "");
+  const [cycleUsed, setCycleUsed] = useState(initialValues?.current_cycle_used?.toString() ?? "");
 
   const cycleNum = Number(cycleUsed);
   const cycleValid = cycleUsed !== "" && !Number.isNaN(cycleNum) && cycleNum >= MIN_CYCLE && cycleNum <= MAX_CYCLE;
+  const sameLocations =
+    pickupLocation.trim() !== "" &&
+    dropoffLocation.trim() !== "" &&
+    pickupLocation.trim().toLowerCase() === dropoffLocation.trim().toLowerCase();
   const isValid =
     currentLocation.trim() !== "" &&
     pickupLocation.trim() !== "" &&
     dropoffLocation.trim() !== "" &&
-    cycleValid;
+    cycleValid &&
+    !sameLocations;
 
   const cycleHelperText =
     fieldErrors?.current_cycle_used ??
     (cycleUsed !== "" && !cycleValid ? `Cycle must be between ${MIN_CYCLE} and ${MAX_CYCLE} hours` : undefined);
+
+  const dropoffHelperText =
+    fieldErrors?.dropoff_location ?? (sameLocations ? "Dropoff location must be different from pickup" : undefined);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +60,7 @@ export function TripForm({ onSubmit, loading, fieldErrors }: TripFormProps) {
           onChange={(e) => setCurrentLocation(e.target.value)}
           error={Boolean(fieldErrors?.current_location)}
           helperText={fieldErrors?.current_location}
+          disabled={loading || readOnly}
           fullWidth
         />
         <TextField
@@ -57,14 +69,16 @@ export function TripForm({ onSubmit, loading, fieldErrors }: TripFormProps) {
           onChange={(e) => setPickupLocation(e.target.value)}
           error={Boolean(fieldErrors?.pickup_location)}
           helperText={fieldErrors?.pickup_location}
+          disabled={loading || readOnly}
           fullWidth
         />
         <TextField
           label="Dropoff location"
           value={dropoffLocation}
           onChange={(e) => setDropoffLocation(e.target.value)}
-          error={Boolean(fieldErrors?.dropoff_location)}
-          helperText={fieldErrors?.dropoff_location}
+          error={Boolean(fieldErrors?.dropoff_location) || sameLocations}
+          helperText={dropoffHelperText}
+          disabled={loading || readOnly}
           fullWidth
         />
         <TextField
@@ -74,11 +88,21 @@ export function TripForm({ onSubmit, loading, fieldErrors }: TripFormProps) {
           onChange={(e) => setCycleUsed(e.target.value)}
           error={Boolean(fieldErrors?.current_cycle_used) || (cycleUsed !== "" && !cycleValid)}
           helperText={cycleHelperText}
+          disabled={loading || readOnly}
           fullWidth
         />
-        <Button type="submit" variant="contained" disabled={!isValid || loading}>
-          {loading ? <CircularProgress size={20} color="inherit" /> : "Plan trip"}
-        </Button>
+        {readOnly ? (
+          totalMiles !== undefined ? <Typography variant="body2" color="text.secondary">Total miles: {totalMiles.toLocaleString()} mi</Typography> : null
+        ) : (
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={!isValid || loading}
+            startIcon={loading ? <CircularProgress size={16} color="inherit" /> : null}
+          >
+            {loading ? "Planning trip…" : "Plan trip"}
+          </Button>
+        )}
       </Stack>
     </Paper>
   );

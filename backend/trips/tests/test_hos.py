@@ -46,6 +46,24 @@ def test_fuel_stop_every_1000_miles():
     assert notes.count("fuel") == 1
 
 
+def test_daily_rest_taken_in_sleeper_berth():
+    logs = plan_trip([Leg(900, 15.0, service_after=False)], cycle_used=0, start=START)
+    rests = [e for d in logs for e in d["events"] if e["note"] == "10 hr rest"]
+    assert rests
+    assert all(e["status"] == "sleeper" for e in rests)
+    assert abs(sum(d["totals"]["sleeper"] for d in logs) - 10.0) < 0.01
+
+
+def test_break_and_restart_remain_off_duty():
+    logs = plan_trip([Leg(1200, 20.0, service_after=False)], cycle_used=68, start=START)
+    events = [e for d in logs for e in d["events"]]
+    assert any(e["note"] == "30 min break" for e in events)
+    assert any(e["note"] == "34 hr restart" for e in events)
+    for e in events:
+        if e["note"] in ("30 min break", "34 hr restart"):
+            assert e["status"] == "off_duty"
+
+
 def test_cycle_exhaustion_inserts_34h_restart():
     logs = plan_trip([Leg(300, 5.0, service_after=False)], cycle_used=68, start=START)
     notes = [e["note"] for d in logs for e in d["events"]]

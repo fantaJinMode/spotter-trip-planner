@@ -49,3 +49,33 @@ def test_build_plan_returns_route_stops_and_logs(mock_geocode, mock_route):
     for s in stops:
         assert -90 <= s["lat"] <= 90
         assert -180 <= s["lon"] <= 180
+
+    assert "start" in types
+
+    start_stop = next(s for s in stops if s["type"] == "start")
+    assert start_stop["note"] == "pre-trip inspection"
+    assert abs(start_stop["lat"] - LOCATIONS["Chicago, IL"][0]) < 1e-4
+    assert abs(start_stop["lon"] - LOCATIONS["Chicago, IL"][1]) < 1e-4
+
+
+def fake_route_long(origin, destination):
+    if origin == LOCATIONS["Chicago, IL"]:
+        return {"distance_mi": 40.0, "duration_hrs": 0.75, "geometry": "geomA", "coords": ROUTE_A_COORDS}
+    return {"distance_mi": 1500.0, "duration_hrs": 25.0, "geometry": "geomB", "coords": ROUTE_B_COORDS}
+
+
+@patch("trips.services.planner.routing.route", side_effect=fake_route_long)
+@patch("trips.services.planner.geocoding.geocode", side_effect=fake_geocode)
+def test_stops_carry_semantic_types(mock_geocode, mock_route):
+    data = {
+        "current_location": "Chicago, IL",
+        "pickup_location": "Joliet, IL",
+        "dropoff_location": "Dallas, TX",
+        "current_cycle_used": 0,
+    }
+    plan = build_plan(data)
+
+    types = {s["type"] for s in plan["route"]["stops"]}
+    assert {"fuel", "break", "rest"} <= types
+    # no duty status leaks through as a stop type, no day-padding stops
+    assert types <= {"start", "pickup", "dropoff", "fuel", "break", "rest"}

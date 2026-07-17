@@ -14,7 +14,17 @@ export async function createTrip(input: TripInput): Promise<TripPlan> {
   return data;
 }
 export async function getTrip(id: string): Promise<TripPlan> {
-  if (useMock()) return fixtureTrip;
+  if (useMock()) {
+    if (id !== fixtureTrip.id) {
+      return Promise.reject(
+        Object.assign(new Error("Not found"), {
+          isAxiosError: true,
+          response: { status: 404, data: { detail: "Not found." } },
+        }),
+      );
+    }
+    return fixtureTrip;
+  }
   const { data } = await api.get<TripPlan>(`/api/trips/${id}/`);
   return data;
 }
@@ -23,4 +33,8 @@ export async function listTrips(): Promise<TripListItem[]> {
   if (useMock()) return fixtureTripList;
   const { data } = await api.get<TripListItem[]>("/api/trips/");
   return data;
+}
+
+export function isNotFoundError(error: unknown): boolean {
+  return axios.isAxiosError(error) && error.response?.status === 404;
 }

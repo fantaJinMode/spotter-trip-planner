@@ -1,4 +1,4 @@
-export type StopType = "pickup" | "dropoff" | "fuel" | "break" | "rest";
+export type StopType = "start" | "pickup" | "dropoff" | "fuel" | "break" | "rest";
 export type DutyStatus = "off_duty" | "sleeper" | "driving" | "on_duty";
 
 export interface TripInput {
@@ -19,7 +19,11 @@ export interface DailyLog {
   date: string; events: LogEvent[];
   totals: Record<DutyStatus, number>;
 }
-export interface TripPlan { id: string; route: Route; logs: DailyLog[] }
+export interface TripPlan extends TripInput {
+  id: string;
+  route: Route;
+  logs: DailyLog[];
+}
 
 export interface TripListItem {
   id: string;

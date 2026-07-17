@@ -25,8 +25,21 @@ it("shows the Dashboard by default and navigates to Trips List", async () => {
   renderApp();
   expect(screen.getByRole("heading", { name: "Dashboard" })).toBeInTheDocument();
 
-  const [tripsLink] = screen.getAllByRole("link", { name: /trips list/i });
+  const [tripsLink] = screen.getAllByRole("link", { name: /trip list/i });
   await userEvent.click(tripsLink);
 
   expect(await screen.findByRole("heading", { name: "Trips List" })).toBeInTheDocument();
+});
+
+it("shows a 404 page for an unmatched route", () => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  window.history.pushState({}, "", "/does-not-exist");
+  render(
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>,
+  );
+
+  expect(screen.getByText("Page not found")).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /go to dashboard/i })).toHaveAttribute("href", "/");
 });

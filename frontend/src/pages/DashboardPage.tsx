@@ -53,16 +53,18 @@ export function DashboardPage() {
   const [lastError, setLastError] = useState<unknown>(null);
   const { data: loadedTrip, error: loadError, isPending: isLoading } = useTrip(id);
 
-  const data = id ? loadedTrip : createdTrip;
-  const loading = id ? isLoading : isCreating;
+  const data = createdTrip ?? loadedTrip;
+  const loading = isCreating || (Boolean(id) && isLoading);
+  const readOnly = Boolean(id);
 
   const handleSubmit = (input: TripInput) => {
     setLastError(null);
     mutate(input, { onError: (err) => setLastError(err) });
   };
 
-  const fieldErrors = id ? undefined : extractFieldErrors(lastError ?? createError);
-  const globalError = id ? loadError : fieldErrors ? undefined : lastError ?? createError;
+  const mutationError = lastError ?? createError;
+  const fieldErrors = extractFieldErrors(mutationError);
+  const globalError = fieldErrors ? undefined : mutationError ?? (id ? loadError : null);
 
   return (
     <AppShell title="Dashboard" subtitle="Plan a trip and review its route and daily logs">
@@ -101,7 +103,19 @@ export function DashboardPage() {
           </ErrorBoundary>
         </Grid>
         <Grid size={{ xs: 12, md: 4 }} sx={{ order: { xs: 1, md: 2 } }}>
-          <TripForm onSubmit={handleSubmit} loading={isCreating} fieldErrors={fieldErrors} />
+          {loading ? (
+            <Skeleton variant="rectangular" height={320} sx={{ borderRadius: 2 }} />
+          ) : (
+            <TripForm
+              key={data?.id ?? "new"}
+              onSubmit={handleSubmit}
+              loading={isCreating}
+              fieldErrors={fieldErrors}
+              readOnly={readOnly}
+              initialValues={readOnly ? data : undefined}
+              totalMiles={readOnly ? data?.route.distance_mi : undefined}
+            />
+          )}
         </Grid>
       </Grid>
 

@@ -6,6 +6,13 @@ from .hos import Leg, plan_trip
 
 QUARTER_HOUR = timedelta(minutes=15)
 
+NOTE_STOP_TYPES = {
+    "fuel": "fuel",
+    "30 min break": "break",
+    "10 hr rest": "rest",
+    "34 hr restart": "rest",
+}
+
 
 def _round_to_quarter_hour(dt):
     overflow = timedelta(minutes=dt.minute % 15, seconds=dt.second, microseconds=dt.microsecond)
@@ -104,8 +111,12 @@ def _build_stops(logs, route_a, route_b):
             if e["note"] == "pickup/dropoff":
                 service_seen += 1
                 stop_type = "pickup" if service_seen == 1 else "dropoff"
+            elif e["note"] == "pre-trip inspection":
+                stop_type = "start"
+            elif e["note"] in NOTE_STOP_TYPES:
+                stop_type = NOTE_STOP_TYPES[e["note"]]
             else:
-                stop_type = e["status"]
+                continue   # day-boundary padding spans are not stops
             stops.append({
                 "type": stop_type,
                 "note": e["note"],

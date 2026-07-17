@@ -46,6 +46,10 @@ def test_retrieve_trip_returns_200(mock_build_plan):
     assert resp.status_code == 200
     assert resp.data["id"] == trip_id
     assert resp.data["route"] == FAKE_PLAN["route"]
+    assert resp.data["current_location"] == VALID_PAYLOAD["current_location"]
+    assert resp.data["pickup_location"] == VALID_PAYLOAD["pickup_location"]
+    assert resp.data["dropoff_location"] == VALID_PAYLOAD["dropoff_location"]
+    assert resp.data["current_cycle_used"] == VALID_PAYLOAD["current_cycle_used"]
 
 
 @pytest.mark.django_db

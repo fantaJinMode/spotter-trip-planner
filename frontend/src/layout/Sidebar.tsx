@@ -20,7 +20,13 @@ export function Sidebar() {
         top: 0,
       }}
     >
-      <Stack direction="row" spacing={1.25} sx={{ alignItems: "center", px: 1, pb: 3 }}>
+      <Stack
+        component={NavLink}
+        to="/"
+        direction="row"
+        spacing={1.25}
+        sx={{ alignItems: "center", px: 1, pb: 3, textDecoration: "none" }}
+      >
         <Box
           sx={{
             width: 34,

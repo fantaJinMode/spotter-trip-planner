@@ -32,5 +32,20 @@ it("shows the empty state with no trip loaded", () => {
 
 it("loads and displays a trip from the :id route param", async () => {
   renderAt(`/trips/${fixtureTrip.id}`);
-  expect(await screen.findByText(fixtureTrip.logs[0].date)).toBeInTheDocument();
+  expect(await screen.findByText(new RegExp(fixtureTrip.logs[0].date))).toBeInTheDocument();
+});
+
+it("shows a loaded trip's details as read-only with total miles and no Plan trip button", async () => {
+  renderAt(`/trips/${fixtureTrip.id}`);
+  await screen.findByText(new RegExp(fixtureTrip.logs[0].date));
+
+  expect(screen.getByLabelText(/current location/i)).toHaveValue(fixtureTrip.current_location);
+  expect(screen.getByLabelText(/pickup/i)).toHaveValue(fixtureTrip.pickup_location);
+  expect(screen.getByLabelText(/dropoff/i)).toHaveValue(fixtureTrip.dropoff_location);
+  expect(screen.getByLabelText(/cycle/i)).toHaveValue(fixtureTrip.current_cycle_used);
+  expect(screen.getByLabelText(/current location/i)).toBeDisabled();
+  expect(screen.queryByRole("button", { name: /plan trip/i })).not.toBeInTheDocument();
+  expect(
+    screen.getByText(new RegExp(`total miles: ${fixtureTrip.route.distance_mi}`, "i")),
+  ).toBeInTheDocument();
 });

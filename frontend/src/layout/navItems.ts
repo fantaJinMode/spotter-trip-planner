@@ -10,6 +10,6 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", to: "/", icon: DashboardRoundedIcon },
-  { label: "Trips List", to: "/trips", icon: ListAltRoundedIcon },
+  { label: "Plan Trip", to: "/", icon: DashboardRoundedIcon },
+  { label: "Trip List", to: "/trips", icon: ListAltRoundedIcon },
 ];

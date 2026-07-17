@@ -26,7 +26,14 @@ class TripResponseSerializer(serializers.ModelSerializer):
         fields = ["id"]
 
     def to_representation(self, instance):
-        return {"id": str(instance.id), **instance.plan}
+        return {
+            "id": str(instance.id),
+            "current_location": instance.current_location,
+            "pickup_location": instance.pickup_location,
+            "dropoff_location": instance.dropoff_location,
+            "current_cycle_used": instance.current_cycle_used,
+            **instance.plan,
+        }
 
 
 class TripListSerializer(serializers.ModelSerializer):

@@ -27,7 +27,7 @@ def plan_trip(legs, cycle_used, start):
 
     def rest(hrs, note):
         nonlocal driving_today, on_window, since_break
-        add("off_duty", hrs, note)
+        add("sleeper", hrs, note)   # daily 10-hr rest taken in the sleeper berth (§ 395.1(g)(1))
         driving_today = on_window = since_break = 0.0
 
     def on_duty(hrs, note):
