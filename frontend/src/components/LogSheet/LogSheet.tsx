@@ -68,20 +68,20 @@ export function LogSheet({ log }: LogSheetProps) {
             );
           })}
 
-          {/* quarter-hour ticks hanging from the top edge of every row */}
+          {/* quarter-hour ticks rising from the bottom edge of every row */}
           {ROW_ORDER.map((status, row) =>
             Array.from({ length: 24 }, (_, h) =>
               [15, 30, 45].map((min) => {
                 const x = h * HOUR_W + (min / 60) * HOUR_W;
-                const yTop = row * ROW_H;
+                const yBottom = (row + 1) * ROW_H;
                 const len = min === 30 ? HALF_TICK : QUARTER_TICK;
                 return (
                   <line
                     key={`tick-${status}-${h}-${min}`}
                     x1={x}
-                    y1={yTop}
+                    y1={yBottom}
                     x2={x}
-                    y2={yTop + len}
+                    y2={yBottom - len}
                     stroke={BLUE}
                     strokeWidth={1}
                   />
