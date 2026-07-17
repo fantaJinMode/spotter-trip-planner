@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Alert, Box, Grid, Skeleton, Stack } from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
+import { Alert, Box, Button, Grid, Skeleton, Stack } from "@mui/material";
 import { AppShell } from "../layout/AppShell";
 import { TripForm } from "../components/TripForm/TripForm";
 import { RouteMap } from "../components/RouteMap/RouteMap";
@@ -51,7 +51,8 @@ function extractGlobalMessage(error: unknown): string {
 
 export function DashboardPage() {
   const { id } = useParams<"id">();
-  const { mutate, data: createdTrip, error: createError, isPending: isCreating } = useCreateTrip();
+  const navigate = useNavigate();
+  const { mutate, reset, data: createdTrip, error: createError, isPending: isCreating } = useCreateTrip();
   const [lastError, setLastError] = useState<unknown>(null);
   const { data: loadedTrip, error: loadError, isPending: isLoading } = useTrip(id);
 
@@ -61,12 +62,18 @@ export function DashboardPage() {
 
   const data = createdTrip ?? loadedTrip;
   const loading = isCreating || (Boolean(id) && isLoading);
-  const readOnly = Boolean(id);
+  const readOnly = Boolean(id) || Boolean(createdTrip);
   const tripNotFound = Boolean(id) && isNotFoundError(loadError);
 
   const handleSubmit = (input: TripInput) => {
     setLastError(null);
     mutate(input, { onError: (err) => setLastError(err) });
+  };
+
+  const handlePlanNew = () => {
+    setLastError(null);
+    reset();
+    if (id) navigate("/");
   };
 
   const mutationError = lastError ?? createError;
@@ -84,6 +91,14 @@ export function DashboardPage() {
         />
       ) : (
         <>
+          {!loading && data ? (
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
+              <Button variant="outlined" size="small" onClick={handlePlanNew}>
+                Plan New Trip
+              </Button>
+            </Box>
+          ) : null}
+
           {globalError ? (
             <Alert severity="error" sx={{ mb: 2 }}>
               {extractGlobalMessage(globalError)}

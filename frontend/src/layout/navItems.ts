@@ -3,6 +3,7 @@ import type { SvgIconProps } from "@mui/material/SvgIcon";
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import ListAltRoundedIcon from "@mui/icons-material/ListAltRounded";
 
+
 export interface NavItem {
   label: string;
   to: string;
@@ -10,6 +11,6 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: NavItem[] = [
-  { label: "Plan Trip", to: "/", icon: DashboardRoundedIcon },
+  { label: "New Trip", to: "/", icon: DashboardRoundedIcon },
   { label: "Trip List", to: "/trips", icon: ListAltRoundedIcon },
 ];

@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { render, screen } from "@testing-library/react";
 import { it, expect } from "vitest";
 import { LogSheet } from "./LogSheet";
