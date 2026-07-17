@@ -2,7 +2,7 @@
 set -e
 
 echo "Building project packages..."
-python3 -m pip install -r requirements.txt
+python3 -m pip install --break-system-packages -r requirements.txt
 
 echo "Applying database migrations..."
 python3 manage.py migrate --noinput
